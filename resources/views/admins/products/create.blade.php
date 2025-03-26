@@ -25,7 +25,7 @@
     <div class="app-content">
         <!--begin::Container-->
         <div class="container-fluid">
-            <form action="{{ route('admin.products.store') }}" method="POST">
+            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <!--begin::Row-->
                 <div class="row g-4">
@@ -55,7 +55,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Tên sản phẩm</label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name"/>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                           name="name" value="{{ old('name') }}" id="name"/>
                                     @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -118,7 +119,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="technical_spec" class="form-label">Thông số kỹ thuật</label>
-                                    <textarea name="technical_spec" id="technical_spec" class="form-control @error('technical_spec') is-invalid @enderror"
+                                    <textarea name="technical_spec" id="technical_spec"
+                                              class="form-control @error('technical_spec') is-invalid @enderror"
                                               rows="10"></textarea>
                                     @error('technical_spec')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -126,7 +128,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label">Mô tả sản phẩm</label>
-                                    <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror"
+                                    <textarea name="description" id="description"
+                                              class="form-control @error('description') is-invalid @enderror"
                                               rows="10"></textarea>
                                     @error('description')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -187,7 +190,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="brand" class="form-label">Thương hiệu</label>
-                                    <select name="brand" class="form-control @error('brand') is-invalid @enderror" id="brand">
+                                    <select name="brand" class="form-control @error('brand') is-invalid @enderror"
+                                            id="brand">
                                         <option value="">Choose brand</option>
                                         @foreach($brands as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -199,7 +203,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="tag" class="form-label">Tag (giữ Ctrl để chọn nhiều)</label>
-                                    <select name="tags[]" class="form-control @error('tags') is-invalid @enderror" id="tag" multiple>
+                                    <select name="tags[]" class="form-control @error('tags') is-invalid @enderror"
+                                            id="tag" multiple>
                                         @foreach($tags as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
@@ -256,10 +261,7 @@
         });
 
 
-
-
-
-        $('#description_media').change(function() {
+        $('#description_media').change(function () {
             const maxFiles = 5; // Giới hạn 5 file
             if (this.files.length > maxFiles) {
                 alert(`Chỉ được chọn tối đa ${maxFiles} file!`);
@@ -271,7 +273,7 @@
             if (this.files) {
                 Array.from(this.files).forEach((file, index) => {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const isVideo = file.type.startsWith('video');
                         const element = isVideo
                             ? `<video controls src="${e.target.result}" alt="Preview" style="width: 200px; height: 100px;"></video>`
@@ -303,11 +305,11 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Giá</label>
-                        <input type="number" name="variants[${variantIndex}][price]" class="form-control" value="" min="0" step="1000">
+                        <input type="number" name="variants[${variantIndex}][price]" class="form-control" value="" min="0">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Giá khuyến mãi</label>
-                        <input type="number" name="variants[${variantIndex}][discount_price]" class="form-control" value="" min="0" step="1000">
+                        <input type="number" name="variants[${variantIndex}][discount_price]" class="form-control" value="" min="0">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Tồn kho</label>

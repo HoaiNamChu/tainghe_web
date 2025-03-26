@@ -51,7 +51,7 @@
                                 @foreach($data as $key => $item)
                                     <tr class="align-middle">
                                         <td>{{ $key + 1}}</td>
-                                        <td><img src="{{ $item->image }}" alt=""></td>
+                                        <td><img src="{{ \Illuminate\Support\Facades\Storage::url($item->image) }}" width="100px" alt=""></td>
                                         <td>{{$item->name}}</td>
                                         <td>{{$item->code}}</td>
                                         <td>{{$item->formatted_price}} VND</td>
@@ -62,7 +62,11 @@
                                         <td>
                                             <button class="btn btn-info">Xem</button>
                                             <a href="{{ route('admin.products.edit', $item) }}" class="btn btn-warning">Sửa</a>
-                                            <button class="btn btn-danger">Xóa</button>
+                                            <form action="{{ route('admin.products.destroy', $item) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger" type="submit" onclick="return confirm('Bạn muốn xóa sản phẩm {{$item->name}} ?')">Xóa</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -73,11 +77,11 @@
                         <div class="card-footer clearfix">
                             <ul class="pagination pagination-sm m-0 float-end">
                                 {{ $data->links() }}
-{{--                                <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>--}}
-{{--                                <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
-{{--                                <li class="page-item"><a class="page-link" href="#">2</a></li>--}}
-{{--                                <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
-{{--                                <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>--}}
+                                {{--                                <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>--}}
+                                {{--                                <li class="page-item"><a class="page-link" href="#">1</a></li>--}}
+                                {{--                                <li class="page-item"><a class="page-link" href="#">2</a></li>--}}
+                                {{--                                <li class="page-item"><a class="page-link" href="#">3</a></li>--}}
+                                {{--                                <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>--}}
                             </ul>
                         </div>
                     </div>

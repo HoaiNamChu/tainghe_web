@@ -48,9 +48,7 @@ Route::get('/gui-don-hang', [\App\Http\Controllers\Clients\OrderController::clas
 
 Route::get('/san-pham', [\App\Http\Controllers\Clients\ShopController::class, 'index'])->name('shop.index');
 
-Route::get('/chi-tiet-san-pham', function () {
-    return view('clients/single_product');
-})->name('product.show');
+Route::get('/chi-tiet-san-pham/{slug}', [\App\Http\Controllers\Clients\ProductController::class, 'productDetail'])->name('products.detail');
 
 Route::post('/cart/add', [\App\Http\Controllers\Clients\CartController::class, 'addToCart'])->name('cart.add');
 Route::get('/cart/show', [\App\Http\Controllers\Clients\CartController::class, 'showCart'])->name('cart.show');

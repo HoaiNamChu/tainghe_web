@@ -12,8 +12,7 @@ class ProductMedia extends Model
     protected $table = 'product_medias';
     protected $fillable = [
         'product_id',
-        'file_name',
-        'file_path',
-        'file_type',
+        'url',
+        'media_type',
     ];
 }

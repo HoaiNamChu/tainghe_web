@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="{{asset('/clients/themes/template/vendor/owl-carousel/css/owl.carousel.min.css')}}"/>
     <link rel="stylesheet" href="{{asset('/clients/themes/template/vendor/slick-carousel/css/slick.min.css')}}"/>
 
+    @yield('link')
+
     <!-- custom style-->
     <link rel="stylesheet" href="{{asset('/clients/themes/template/css/style.css')}}"/>
     <link rel="stylesheet" href="{{asset('/clients/themes/template/css/custom.css')}}"/>
@@ -557,6 +559,7 @@
 <script src="{{asset('/clients/themes/template/vendor/swiper/js/swiper.min.js')}}"></script>
 <script src="{{asset('/clients/themes/template/vendor/jquery-zoom/jquery.zoom.min.js')}}"></script>
 <script src="{{asset('/clients/themes/template/vendor/easy-autocomplete/jquery.easy-autocomplete.min.js')}}"></script>
+@yield('lib-script')
 
 <!-- custom script-->
 <script src="{{asset('/clients/themes/template/js/jquery_cookie.js')}}"></script>

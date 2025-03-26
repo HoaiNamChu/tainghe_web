@@ -29,12 +29,13 @@ class CartController extends Controller
      */
     public function addToCart(Request $request)
     {
-        $quantity = $request->query('quantity', 1);
+        $quantity = $request->quantity;
+        $productId = $request->product_id;
 
         $cart = session()->get('cart', []);
 
         $cart[$request->product_id] = [
-            'product' => Product::with('productVariants')->findOrFail(request()->product_id),
+            'product' => Product::with('productVariants')->findOrFail($productId),
             'quantity' => $quantity
         ];
 

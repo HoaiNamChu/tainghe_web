@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductMedia;
+use App\Models\ProductVariant;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -72,53 +73,42 @@ class ProductController extends Controller
             'brand_id' => $request->brand,
             'is_active' => $request->is_active ? 1 : 0,
         ];
-        if ($request->image){
-            $data['image'] = Storage::put('uploads',$request->image);
+        if ($request->image) {
+            $data['image'] = Storage::put('uploads/images', $request->image);
         }
 
         $product = Product::create($data);
 
-        if ($product) {
-            if ($request->categories != null) {
-                $product->catagories()->attach($request->categories);
-            }
-            if ($request->tags != null) {
-                $product->catagories()->attach($request->tags);
-            }
+        if ($request->categories != null) {
+            $product->catagories()->sync($request->categories);
+        }
+        if ($request->tags != null) {
+            $product->catagories()->sync($request->tags);
+        }
 
-            foreach ($request->variants as $variantData) {
-                $product->productVariants()->create([
-                    'variant_attribute' => $variantData['variant_attribute'],
-                    'variant_value' => $variantData['variant_value'],
-                    'price' => $variantData['price'],
-                    'discount_price' => $variantData['discount_price'],
-                    'stock' => $variantData['stock'],
+        foreach ($request->variants as $variantData) {
+            $product->productVariants()->create([
+                'variant_attribute' => $variantData['variant_attribute'],
+                'variant_value' => $variantData['variant_value'],
+                'price' => $variantData['price'],
+                'discount_price' => $variantData['discount_price'],
+                'stock' => $variantData['stock'],
+            ]);
+        }
+
+
+        if (request()->hasFile('description_media')) {
+            foreach ($request->file('description_media') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $fileType = in_array($extension, ['jpeg', 'png', 'jpg', 'gif', 'webp', 'jfif']) ? 'image' : 'video';
+                $path = Storage::put('uploads/' . $fileType == 'image' ? 'images' : 'videos', $file);
+                // Lưu vào database
+                ProductMedia::create([
+                    'product_id' => $product->id,
+                    'url' => $path,
+                    'media_type' => $fileType
                 ]);
             }
-
-
-            if (request()->hasFile('description_media')) {
-                $uploadedFiles = ['images' => [], 'video' => null];
-
-                foreach ($request->file('description_media') as $file) {
-                    $extension = $file->getClientOriginalExtension();
-                    $fileName = time() . '_' . $file->getClientOriginalName();
-                    $fileType = in_array($extension, ['jpeg', 'png', 'jpg', 'gif', 'webp', 'jfif']) ? 'image' : 'video';
-                    $path = $file->store('uploads/' . ($fileType == 'image' ? 'images' : 'videos'), 'public');
-
-                    // Lưu vào database
-                    ProductMedia::create([
-                        'product_id' => $product->id,
-                        'file_name' => $fileName,
-                        'file_path' => $path,
-                        'file_type' => $fileType
-                    ]);
-
-                    $uploadedFiles[$fileType == 'image' ? 'images' : 'video'][] = $path;
-                }
-                dd($uploadedFiles);
-            }
-
         }
 
         return redirect()->route('admin.products.index');
@@ -154,7 +144,67 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        dd($request->all());
+        $data = [
+            'code' => $request->code,
+            'name' => $request->name,
+            'slug' => Str::slug($request->code),
+            'description' => $request->description,
+            'technical_specs' => $request->technical_spec,
+            'brand_id' => $request->brand,
+            'is_active' => $request->is_active ? 1 : 0,
+        ];
+        if ($request->image) {
+            $data['image'] = Storage::put('uploads/images', $request->image);
+        }
+
+        $product = Product::findOrFail($id);
+
+        $product->update($data);
+
+
+//        dd($request->category_ids);
+        if ($request->category_ids != null) {
+            $product->categories()->sync($request->category_ids);
+        }
+
+        if ($request->tags != null) {
+            $product->tags()->sync($request->tags);
+        }
+
+        $variantIds = [];
+
+
+        foreach ($request->variants as $variantData) {
+            if (isset($variantData['variant_id'])) {
+                $product->productVariants()->find($variantData['variant_id'])->update($variantData);
+                array_push($variantIds, intval($variantData['variant_id']));
+            } else {
+                $product->productVariants()->create($variantData);
+
+                array_push($variantIds, $product->productVariants()->create($variantData)->id);
+            }
+        }
+
+        ProductVariant::where('product_id', $product->id)
+            ->whereNotIn('id', $variantIds)
+            ->delete();
+
+
+        if (request()->hasFile('description_media')) {
+            foreach ($request->file('description_media') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $fileType = in_array($extension, ['jpeg', 'png', 'jpg', 'gif', 'webp', 'jfif']) ? 'image' : 'video';
+                $path = Storage::put('uploads/' . $fileType == 'image' ? 'images' : 'videos', $file);
+                // Lưu vào database
+                ProductMedia::create([
+                    'product_id' => $product->id,
+                    'url' => $path,
+                    'media_type' => $fileType
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -162,6 +212,19 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $product->categories()->sync([]);
+
+        $product->tags()->sync([]);
+
+        $product->productVariants()->delete();
+
+        $product->productMedias()->delete();
+
+        $product->delete();
+
+        return redirect()->route('admin.products.index');
+
     }
 }
